@@ -44,7 +44,7 @@ traint <- function (st_data, sc_data, st_assay='Spatial', sc_assay='scint', norm
   }
 
   sc_st_features <- sc_st_features[(sc_st_features %in% rownames(st_data[[st_assay]]@data)) &
-                                     (sc_st_features %in% rownames(sc_data[[sc_assay]]@data))]
+                                     (sc_st_features %in% rownames(sc_data[[sc_assay]]@layers$data))]
   cat('Using', length(sc_st_features), 'features for integration... \n')
   ###
 
@@ -59,7 +59,7 @@ traint <- function (st_data, sc_data, st_assay='Spatial', sc_assay='scint', norm
 
   cat('Creating new Seurat object... \n')
   sc_st_meta <- dplyr::bind_rows(st_data@meta.data, sc_data@meta.data)
-  counts_temp <- cbind(data.frame(st_data[['transfer']]@data), data.frame(sc_data[[sc_assay]]@data[sc_st_features, ] %>% data.frame))
+  counts_temp <- cbind(data.frame(st_data[['transfer']]@data), data.frame(sc_data[[sc_assay]]@layers$data[sc_st_features, ] %>% data.frame))
   rownames(sc_st_meta) <- make.names(sc_st_meta$id)
   colnames(counts_temp) <- make.names(sc_st_meta$id)
   sc_st_int <- CreateSeuratObject(counts = counts_temp, assay = 'traint', meta.data = sc_st_meta)
