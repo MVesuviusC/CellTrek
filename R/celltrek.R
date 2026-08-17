@@ -46,7 +46,6 @@ traint <- function (st_data, sc_data, st_assay='Spatial', sc_assay='scint', norm
   sc_st_features <- sc_st_features[(sc_st_features %in% rownames(GetAssayData(st_data, assay = st_assay, layer = "data"))) &
                                      (sc_st_features %in% rownames(Seurat::GetAssayData(sc_data, assay = sc_assay, layer = "data")))]
   cat('Using', length(sc_st_features), 'features for integration... \n')
-  ###
 
   sc_st_anchors <- Seurat::FindTransferAnchors(reference = sc_data, query = st_data,
                                                reference.assay = sc_assay, query.assay = st_assay,
@@ -63,8 +62,8 @@ traint <- function (st_data, sc_data, st_assay='Spatial', sc_assay='scint', norm
   rownames(sc_st_meta) <- make.names(sc_st_meta$id)
   colnames(counts_temp) <- make.names(sc_st_meta$id)
   sc_st_int <- CreateSeuratObject(counts = counts_temp, assay = 'traint', meta.data = sc_st_meta)
-  sc_st_int[['traint']]@data <- sc_st_int[['traint']]@counts
-  sc_st_int[['traint']]@counts <- matrix(NA, nrow = 0, ncol = 0)
+  sc_st_int <- SetAssayData(sc_st_int, assay = "traint", layer = "data", new.data = GetAssayData(sc_st_int, assay = "traint", layer = "counts"))
+  sc_st_int <- SetAssayData(sc_st_int, assay = "traint", layer = "counts", new.data = matrix(NA, nrow = 0, ncol = 0))
 
   cat('Scaling -> PCA -> UMAP... \n')
   sc_st_int <- ScaleData(sc_st_int, features = sc_st_features) %>%
