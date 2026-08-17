@@ -43,8 +43,8 @@ traint <- function (st_data, sc_data, st_assay='Spatial', sc_assay='scint', norm
     sc_st_features <- union(sc_st_features, gene_kept)
   }
 
-  sc_st_features <- sc_st_features[(sc_st_features %in% rownames(st_data[[st_assay]]@data)) &
-                                     (sc_st_features %in% rownames(sc_data[[sc_assay]]@layers$data))]
+  sc_st_features <- sc_st_features[(sc_st_features %in% rownames(GetAssayData(st_data, assay = st_assay, layer = "data"))) &
+                                     (sc_st_features %in% rownames(Seurat::GetAssayData(sc_data, assay = sc_assay, layer = "data")))]
   cat('Using', length(sc_st_features), 'features for integration... \n')
   ###
 
@@ -54,12 +54,12 @@ traint <- function (st_data, sc_data, st_assay='Spatial', sc_assay='scint', norm
 
   cat('Data transfering... \n')
   st_data_trans <- Seurat::TransferData(anchorset = sc_st_anchors,
-                                        refdata = GetAssayData(sc_data, assay = sc_assay, slot='data')[sc_st_features, ], weight.reduction = 'cca')
+                                        refdata = GetAssayData(sc_data, assay = sc_assay, layer='data')[sc_st_features, ], weight.reduction = 'cca')
   st_data@assays$transfer <- st_data_trans
 
   cat('Creating new Seurat object... \n')
   sc_st_meta <- dplyr::bind_rows(st_data@meta.data, sc_data@meta.data)
-  counts_temp <- cbind(data.frame(st_data[['transfer']]@data), data.frame(sc_data[[sc_assay]]@layers$data[sc_st_features, ] %>% data.frame))
+  counts_temp <- cbind(data.frame(st_data[['transfer']]@data), data.frame(Seurat::GetAssayData(sc_data, assay = sc_assay, layer = "data")[sc_st_features, ] %>% data.frame))
   rownames(sc_st_meta) <- make.names(sc_st_meta$id)
   colnames(counts_temp) <- make.names(sc_st_meta$id)
   sc_st_int <- CreateSeuratObject(counts = counts_temp, assay = 'traint', meta.data = sc_st_meta)
