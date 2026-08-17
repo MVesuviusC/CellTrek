@@ -63,7 +63,7 @@ traint <- function (st_data, sc_data, st_assay='Spatial', sc_assay='scint', norm
   colnames(counts_temp) <- make.names(sc_st_meta$id)
   sc_st_int <- CreateSeuratObject(counts = counts_temp, assay = 'traint', meta.data = sc_st_meta)
   sc_st_int <- SetAssayData(sc_st_int, assay = "traint", layer = "data", new.data = GetAssayData(sc_st_int, assay = "traint", layer = "counts"))
-  sc_st_int <- SetAssayData(sc_st_int, assay = "traint", layer = "counts", new.data = matrix(NA, nrow = 0, ncol = 0))
+  sc_st_int <- SetAssayData(sc_st_int, assay = "traint", layer = "counts", new.data = matrix(NA, nrow = nrow(sc_st_int), ncol = ncol(sc_st_int)))
 
   cat('Scaling -> PCA -> UMAP... \n')
   sc_st_int <- ScaleData(sc_st_int, features = sc_st_features) %>%
