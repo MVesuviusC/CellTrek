@@ -144,7 +144,7 @@ celltrek_dist <- function (st_sc_int, int_assay='traint', reduction='pca', intp 
   sc_idx <- st_sc_int$id[st_sc_int$type=='sc']
   meta_df <- data.frame(st_sc_int@meta.data)
 
-  st_sc_int_pca <- st_sc_int@reductions[[reduction]]@cell.embeddings[, 1:nPCs] %>% data.frame %>%
+  st_sc_int_pca <- Embeddings(st_sc_int, reduction = reduction)[, 1:nPCs] %>% data.frame %>%
     mutate(id=st_sc_int$id, type=st_sc_int$type, class=st_sc_int$cell_names,
            coord_x=st_sc_int$coord_x, coord_y=st_sc_int$coord_y)
   st_pca <- st_sc_int_pca %>% dplyr::filter(type=='st') %>% dplyr::select(-c(id:class))
@@ -284,7 +284,7 @@ celltrek_from_dist <- function (dist_mat, coord_df, dist_cut, top_spot=10, spot_
   sc_coord_list <- celltrek_chart(dist_mat=dist_mat, coord_df=coord_df, dist_cut=dist_cut, top_spot=top_spot, spot_n=spot_n, repel_r=repel_r, repel_iter=repel_iter)
   sc_coord_raw <- sc_coord_list[[1]]
   sc_coord <- sc_coord_list[[2]]
-  sc_out <- CreateSeuratObject(counts=sc_data[[sc_assay]]@data[, sc_coord$id_raw] %>% set_colnames(sc_coord$id_new),
+  sc_out <- CreateSeuratObject(counts=GetAssayData(sc_data, assay=sc_assay, layer="data")[, sc_coord$id_raw] %>% set_colnames(sc_coord$id_new),
                                project='celltrek', assay=sc_assay,
                                meta.data=sc_data@meta.data[sc_coord$id_raw, ] %>%
                                  dplyr::rename(id_raw=id) %>%
